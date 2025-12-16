@@ -1,0 +1,57 @@
+#the following considers restriction coefficients for all cyclic subgroups of S_n
+def permutation_with_cycle_type(mu):
+    n = sum(mu)
+    cycles = []
+    current_number = 1
+    for size in mu:
+        cycle = tuple(range(current_number, current_number + size))
+        current_number += size
+        cycles.append(cycle)
+    return Permutation(cycles)
+
+def order(mu):
+    return lcm(mu)
+
+def power(mu, i):
+    return sorted(sum([[m/gcd(m,i)]*gcd(m,i) for m in mu],[]), reverse=True)
+   
+def a(la, mu, i):
+    n = lcm(mu)
+    m = order(mu)
+    F = CyclotomicField(m)
+    z = F.gen()
+    return sum(symmetrica.charvalue(la, power(mu,j))*z^(i*j) for j in range(m))/m
+
+
+#The following code will give us the restriction coefficients for S_n to D_n
+def restriction_S_n_D_n(la):
+    n=sum(la)
+    #We shall start with n odd
+    if n%2==1:
+        S=[]
+        #First, we shall append the multiplicity of the trivial character
+        S.append(sum(symmetrica.charvalue(la,g.cycle_type()) for g in DihedralGroup(n))/(2*n))
+        #Second, we shall append the multiplicty of the other one dimensional character which takes r to 1 and s to -1
+        S.append(a(la,[n],0)-S[0])
+        #Now we shall add the multiplicity of the remaining two diemensional irreducibles
+        S=S+[a(la,[n],i) for i in range(1,(n-1)/2+1)]
+        return S
+    #when n even, we have two more one dimensional characters
+    if n%2==0:
+        S=[]
+        #First, we shall append the multiplicity of the trivial character
+        S.append(sum(symmetrica.charvalue(la,g.cycle_type()) for g in DihedralGroup(n))/(2*n))
+        #Second, we shall append the multiplicty of the one dimensional character which takes r to 1 and s to -1
+        S.append(a(la,[n],0)-S[0])
+        #Second, we shall append the multiplicty of the one dimensional character which takes r to -1 and s to 1
+        c=sum(euler_phi(int(n/d))*symmetrica.charvalue(la,[int(n/d)]*d)*(-1)^d for d in divisors(n))
+        d =  (n/2)*symmetrica.charvalue(la,[2]*(int(n/2)))-(n/2)*symmetrica.charvalue(la,[2]*(int(n/2)-1)+[1,1])
+        S.append((c+d)/(2*n))
+        #Second, we shall append the multiplicty of the one dimensional character which takes r to -1 and s to 1
+        S.append(a(la,[n],n/2)-S[2])
+        #Now we shall add the multiplicity of the remaining two diemensional irreducibles
+        S=S+[a(la,[n],i) for i in range(1,(n/2+1))]
+        return S
+#example
+restriction_S_n_D_n([10,5,1])
+[611, 639, 625, 625, 1253, 1249, 1253, 1250, 1253, 1249, 1253, 1250]
