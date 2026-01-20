@@ -87,28 +87,15 @@ def restriction_S_n_D_n(la):
     if n % 2 == 0:
 
         # Trivial character
-        S.append(
-            sum(symmetrica.charvalue(la, g.cycle_type())
-                for g in DihedralGroup(n)) / (2 * n)
-        )
+        S.append(sum(symmetrica.charvalue(la, g.cycle_type()) for g in DihedralGroup(n)) / (2 * n))
 
         # One-dimensional character: r -> 1, s -> -1
         S.append(a(la, [n], 0) - S[0])
 
         # One-dimensional character: r -> -1, s -> 1
-        c = sum(
-            euler_phi(int(n / d))
-            * symmetrica.charvalue(la, [int(n / d)] * d)
-            * (-1)^d
-            for d in divisors(n)
-        )
+        c = sum(euler_phi(int(n / d)) * symmetrica.charvalue(la, [int(n / d)] * d) * (-1)^d for d in divisors(n))
 
-        d = (
-            (n / 2) * symmetrica.charvalue(la, [2] * int(n / 2))
-            - (n / 2) * symmetrica.charvalue(
-                la, [2] * (int(n / 2) - 1) + [1, 1]
-            )
-        )
+        d = ((n / 2) * symmetrica.charvalue(la, [2] * int(n / 2)) - (n / 2) * symmetrica.charvalue(la, [2] * (int(n / 2) - 1) + [1, 1]))
 
         S.append((c + d) / (2 * n))
 
